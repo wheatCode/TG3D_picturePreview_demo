@@ -1,0 +1,882 @@
+FORMAT: 1A
+
+# Labeling Tool API
+
+# Group User
+## Login [/api/v1/login]
+### Login [POST]
+Log a user in with mtm account and password.
++ Request (application/json)
+  + Body
+        {
+           "account": "mtm user account",
+           "password": "mtm user password"
+        }
+  + Schema
+        {
+          "type": "object",
+          "properties": {
+            "account": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            }
+          }
+        }
+
+
++ Response 200 (application/json)
+  + Body
+        {
+          "token": "JSON Web Token payload, expired in 12 hours"
+        }
+  + Schema
+        {
+          "type": "object",
+          "properties": {
+            "token": {
+              "type": "string"
+            }
+          }
+        }
+
++ Response 400 (application/json)
+  + Body
+        {
+          "message": "bad request"
+        }
+  + Schema
+        {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          }
+        }
+
++ Response 401 (application/json)
+  + Body
+        {
+          "message": "incorrect account or password"
+        }
+  + Schema
+        {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          }
+        }
+
++ Response 403 (application/json)
+  + Body
+        {
+          "message": "no permission"
+        }
+  + Schema
+        {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string"
+            }
+          }
+        }
+
+# Group Projects
+
+## List Projects [/api/v1/projects?limit={limit}&offset={offset}&sort={sort}&filter={filter}]
+### List [GET]
+List all projects
+
++ Parameters
+    + limit: `20` (number, optional) - Pagination limit. Default to 20, and maximum value is 100.
+    + offset: `0` (number, optional) - Pagination offset. Default to 0.
+    + filter: `keyword` (string, optional) - Search keyword for project name.
+    + sort: `-name` (string, optional) - Field name to sort the result. Leading `-` indicates the result should be ordered by that field DESC.
+
++ Request
+  + Headers
+    Authorization: Bearer <token>
+
++ Response 200
+  + Body
+        {
+          "total": "Numbers of all projects",
+          "limit": "Current pagination limit",
+          "offset": "Current pagination offset",
+          "projects": [
+            {
+              "id": "Hash ID",
+              "name": "Project name",
+              "createdAt": "Creation time",
+              "updatedAt": "Update time",
+              "labelingType": "Project labeling type. 0: classification only, 1: box & classification, 2: pixel-level & classification",
+              "labeled": "Numbers of labeled images",
+              "total": "Numbers of all images",
+              "classes": "List of classes in this project"
+            }
+          ]
+        }
+
+  + Schema
+        {
+          "type": "object",
+          "properties": {
+            "total": {
+              "type": "int"
+            },
+            "limit": {
+              "type": "int"
+            },
+            "offset": {
+              "type": "int"
+            },
+            "projects": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "createdAt": {
+                    "type": "datetime"
+                  },
+                  "updatedAt": {
+                    "type": "datetime"
+                  },
+                  "labelingType": {
+                    "type": "int"
+                  },
+                  "labeled": {
+                    "type": "int"
+                  },
+                  "total": {
+                    "type": "int"
+                  },
+                  "classes": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
+
+## Projects [/api/v1/projects]
+### Create a project [POST]
+Create a project
+
++ Request (application/json)
+  + Headers
+    Authorization: Bearer <token>
+
+  + Body
+        {
+          "name": "Project name",
+          "labelingType": "Labeling Type",
+          "classes": "List of class names that should be created in this project"
+        }
+
+  + Schema
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "labelingType": {
+              "type": "int"
+            },
+            "classes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+
++ Response 201 (application/json)
+  + Body
+        {
+          "id": "Hash ID"
+        }
+
+  + Schema
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          }
+        }
+
++ Response 400
++ Response 401
++ Response 403
+
+## Projects [/api/v1/projects/{id}]
+### Get a project [GET]
+Get a project
+
++ Parameters
+  + id: `3wZo87Bb` (string, required) - Project hash id.
+
++ Request (application/json)
+  + Headers
+    Authorization: Bearer <token>
+
++ Response 200
+  + Body
+        {
+          "id": "Hash ID",
+          "name": "Project name",
+          "createdAt": "Creation time",
+          "updatedAt": "Update time",
+          "labelingType": "Project labeling type. 0: classification only, 1: box & classification, 2: pixel-level & classification",
+          "labeled": "Numbers of labeled images",
+          "total": "Numbers of all images",
+          "classes": "List of classes in this project"
+        }
+
+  + Schema
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "datetime"
+            },
+            "updatedAt": {
+              "type": "datetime"
+            },
+            "labelingType": {
+              "type": "int"
+            },
+            "labeled": {
+              "type": "int"
+            },
+            "total": {
+              "type": "int"
+            },
+            "classes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
++ Response 401
++ Response 403
++ Response 404
+
+### Update a project [POST]
+Update a project
+
++ Parameters
+  + id: `3wZo87Bb` (string, required) - Project hash id.
+
++ Request (application/json)
+  + Headers
+    Authorization: Bearer <token>
+
+  + Body
+        {
+          "name": "(Optional) Project name",
+          "labelingType": "(Optional) Labeling Type",
+          "classes": "(Optional) List of class names that should be created in this project"
+        }
+
++ Response 200
++ Response 400
++ Response 401
++ Response 403
++ Response 404
+
+### Delete a project [DELETE]
+Delete a project
+
++ Parameters
+  + id: `3wZo87Bb` (string, required) - Project hash id.
+
++ Request
+  + Headers
+    Authorization: Bearer <token>
+
++ Response 204
++ Response 401
++ Response 403
++ Response 404
+
+# Group Class
+
+## Classes [/api/v1/projects/{id}/classes]
+### List all classes [GET]
+List all classes in a project
+
++ Parameters
+  + id: `3wZo87Bb` (string, required) - Project hash id.
+
++ Request
+  + Headers
+    Authorization: Bearer <token>
+
++ Response 200 (application/json)
+  + Body
+        {
+          "classes": "List of classes in the project"
+        }
+  + Schema
+        {
+          "type": "object",
+          "properties": {
+            "classes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+
+### Add a class [POST]
+Add a class to a project
+
++ Parameters
+  + id: `3wZo87Bb` (string, required) - Project hash id.
+
++ Request (application/json)
+  + Headers
+    Authorization: Bearer <token>
+
+  + Body
+        {
+          "name": "Name of the new class"
+        }
+  + Schema
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+            }
+          }
+        }
+
++ Response 201 (application/json)
+  + Body
+        {
+          "id": "hash class id"
+        }
+
+  + Schema
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+            }
+          }
+        }
+
++ Response 400
++ Response 401
++ Response 403
++ Response 404
+
+## Classes [/api/v1/projects/{pid}/classes/{cid}]
+### Update a class [POST]
+Update a class
+
++ Parameters
+  + pid: `3wZo87Bb` (string, required) - Project hash id.
+  + cid: `knle9a` (string, required) - Class hash id.
+
++ Request (application/json)
+  + Headers
+    Authorization: Bearer <token>
+
+  + Body
+        {
+          "name": "New name of the class"
+        }
+  + Schema
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+            }
+          }
+        }
+
++ Response 200
++ Response 400
++ Response 401
++ Response 403
++ Response 404
+
+### Delete a class [DELETE]
+Delete a class
+
++ Parameters
+  + pid: `3wZo87Bb` (string, required) - Project hash id.
+  + cid: `knle9a` (string, required) - Class hash id.
+
++ Request
+  + Headers
+    Authorization: Bearer <token>
+
++ Response 204
++ Response 401
++ Response 403
++ Response 404
+
+# Group Image
+## Images [/api/v1/projects/{id}/images?limit={limit}&offset={offset}&filter={filter}&labeled={labeled}]
+### List all images [GET]
+
++ Parameters
+  + id: `3wZo87Bb` (string, required) - Project hash id.
+  + limit: `20` (number, optional) - Pagination limit. Default to 20, and maximum value is 100.
+  + offset: `0` (number, optional) - Pagination offset. Default to 0.
+  + filter: `keyword` (string, optional) - Search keyword for image file name.
+  + labeled: `true` (boolean, optional) - If `true`, should only list images that are labeled. Use `false` to list images that need to be labeled. Omit this to get all images.
+
++ Request
+  + Headers
+    Authorization: Bearer <token>
+
++ Response 200 (application/json)
+  + Body
+        {
+          "total": "Numbers of all images in this project",
+          "offset": "Current pagination offset",
+          "limit": "Current pagination limit",
+          "images": [
+            {
+              "id": "Image hash id",
+              "fileName": "File name",
+              "filePath": "Signed url of the image",
+              "status": "Label status. 0: not uploaded, 1: not labeled, 2: labeled",
+              "md5": "MD5 of the image",
+              "dispatchedAt": "Last Dispatched time"
+            }
+          ]
+        }
+  + Schema
+        {
+          "type": "object",
+          "properties": {
+            "total": {
+              "type": "int",
+            },
+            "offset": {
+              "type": "int",
+            },
+            "limit": {
+              "type": "int",
+            },
+            "images": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "fileName": {
+                    "type": "string"
+                  },
+                  "filePath": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "int"
+                  },
+                  "md5": {
+                    "type": "string"
+                  },
+                  "dispatchedAt": {
+                    "type": "datetime"
+                  }
+                }
+              }
+            }
+          }
+        }
++ Response 401
++ Response 403
++ Response 404
+
+## Request for image upload [/api/v1/projects/{pid}/start_upload]
+### Get upload url [POST]
+
++ Parameters
+  + pid: `3wZo87Bb` (string, required) - Project hash id.
+
++ Request (application/json)
+  + Headers
+    Authorization: Bearer <token>
+
+  + Body
+    {
+      "fileName": "The name of the image file"
+    }
+  + Schema
+    {
+      "type": "object",
+      "properties": {
+        "fileName": {
+          "type": "string"
+        }
+      }
+    }
+
++ Response 200 (application/json)
+  + Body
+    {
+      "url": "The url to which the file can be uploaded",
+      "filePath": "The path to the file"
+    }
+  + Schema
+    {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "filePath": {
+          "type": "string"
+        }
+      }
+    }
++ Response 400
++ Response 401
++ Response 403
++ Response 404
+
+## Finish uploading image [/api/v1/projects/{pid}/finish_upload]
+### Notify of successful upload [POST]
+
++ Parameters
+  + pid: `3wZo87Bb` (string, required) - Project hash id.
+
++ Request (application/json)
+  + Headers
+    Authorization: Bearer <token>
+
+  + Body
+    {
+      "filePath": "The path to the file",
+      "md5": "MD5 checksum of the uploaded file"
+    }
+  + Schema
+    {
+      "type": "object",
+      "properties": {
+        "filePath": {
+          "type": "string"
+        },
+        "md5": {
+          "type": "string"
+        }
+      }
+    }
+
++ Response 200 (application/json)
+  + Body
+    {
+      "id": "The uploaded image hash id"
+    }
+  + Schema
+    {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    }
++ Response 400
++ Response 401
++ Response 403
++ Response 404
+
+## One Image [/api/v1/projects/{pid}/images/{id}]
+### Get an image [GET]
+
++ Parameters
+  + pid: `3wZo87Bb` (string, required) - Project hash id.
+  + id: `Hyu3vDhU` (string, required) - Image hash id.
+
++ Request
+  + Headers
+    Authorization: Bearer <token>
+
++ Response 200 (application/json)
+  + Body
+        {
+           "id": "Image hash id",
+           "fileName": "File name",
+           "filePath": "Signed url of the image",
+           "status": "Label status. 0: not uploaded, 1: not labeled, 2: labeled",
+           "md5": "MD5 of the image",
+           "dispatchedAt": "Last Dispatched time"
+        }
+  + Schema
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "fileName": {
+              "type": "string"
+            },
+            "filePath": {
+              "type": "string"
+            },
+            "status": {
+              "type": "int"
+            },
+            "md5": {
+              "type": "string"
+            },
+            "dispatchedAt": {
+              "type": "datetime"
+            }
+          }
+        }
++ Response 401
++ Response 403
++ Response 404
+
+### Delete an image [DELETE]
+
++ Parameters
+  + pid: `3wZo87Bb` (string, required) - Project hash id.
+  + id: `Hyu3vDhU` (string, required) - Image hash id.
+
++ Request
+  + Headers
+    Authorization: Bearer <token>
+
++ Response 204
++ Response 401
++ Response 403
++ Response 404
+
+## Labels [/api/v1/projects/{pid}/images/{id}/labels]
+
+### List all labels of an image [GET]
+
++ Parameters
+  + pid: `F3btQrg7` (string, required) - Project hash id.
+  + id: `3wZo87Bb` (string, required) - Image hash id.
+
++ Request
+  + Headers
+    Authorization: Bearer <token>
+
++ Response 200 (application/json)
+  + Body
+        {
+          "labels": [
+            {
+              "id": "Label hash id",
+              "bbox": "Stringified xy positions in this format: [x1,y1,x2,y2]",
+              "class": {
+                "id": "r8ymQyAV",
+                "name": "TestClass3"
+              }
+            }
+          ]
+        }
+  + Schema
+        {
+          "type": "object",
+          "properties": {
+            "labels": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "bbox": {
+                    "type": "string"
+                  },
+                  "class": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
++ Response 401
++ Response 403
++ Response 404
+
+## Labels [/api/v1/projects/{id}/labels]
+### Label an image [POST]
+
++ Parameters
+  + id: `F3btQrg7` (string, required) - Project hash id.
+
++ Request
+  + Headers
+    Authorization: Bearer <token>
+  + Body
+    Use empty body to skip labeling.
+
++ Request (application/json)
+  + Headers
+    Authorization: Bearer <token>
+
+  + Body
+        {
+          "imageId": "Image hash id",
+          "labels": [
+            {
+              "classId": "Class hash id",
+              "bbox": "Stringified xy positions(optional)"
+            }
+          ]
+        }
+
+  + Schema
+        {
+          "type": "object",
+          "properties": {
+            "imageId": "string",
+            "labels": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "classId": {
+                    "type": "string"
+                  },
+                  "bbox": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+
++ Response 200
+  + Body
+        {
+          "next": {
+            "id": "Image hash id",
+            "fileName": "File name",
+            "filePath": "Signed url of the image",
+            "status": "Label status. 0: not uploaded, 1: not labeled, 2: labeled",
+            "md5": "MD5 of the image",
+            "dispatchedAt": "Last dispatched time"
+          }
+        }
+  + Schema
+        {
+          "type": "object",
+          "properties": {
+            "next": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "fileName": {
+                  "type": "string"
+                },
+                "filePath": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "int"
+                },
+                "md5": {
+                  "type": "string"
+                },
+                "dispatchedAt": {
+                  "type": "datetime"
+                }
+              }
+            }
+          }
+        }
+
++ Response 200
+  + Body
+        {
+          "next": null
+        }
+  + Schema
+        {
+          "type": "object",
+          "properties": {
+            "next": {
+              "type": "null"
+            }
+          }
+        }
++ Response 400
++ Response 401
++ Response 403
++ Response 404

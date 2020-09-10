@@ -1,0 +1,62 @@
+{
+  "name": "backend",
+  "version": "0.1.0",
+  "description": "API server for TG3DS labeling tool",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "node": ">=8",
+    "npm": ">=6",
+    "yarn": ">=1"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "db:init": "rimraf development.sqlite && yarn run db:migrate && yarn run db:seed",
+    "db:init:test": "rimraf test.sqlite && yarn run db:migrate:test && yarn run db:seed:test",
+    "db:migrate": "npx sequelize db:migrate",
+    "db:migrate:test": "NODE_ENV=test npx sequelize db:migrate",
+    "db:seed": "npx sequelize db:seed:all",
+    "db:seed:test": "NODE_ENV=test npx sequelize db:seed:all",
+    "test": "yarn run db:init:test && nyc ava",
+    "test:summary": "yarn run db:init:test && nyc --reporter=text-summary ava"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.510.0",
+    "axios": "^0.19.0",
+    "body-parser": "^1.19.0",
+    "camelcase": "^5.3.1",
+    "cors": "^2.8.5",
+    "dotenv": "^8.0.0",
+    "express": "^4.17.1",
+    "express-async-handler": "^1.1.4",
+    "express-unless": "^0.5.0",
+    "hashids": "^1.2.2",
+    "jsonwebtoken": "^8.5.1",
+    "mysql2": "^1.6.5",
+    "nock": "^10.0.6",
+    "sequelize": "^5.11.0",
+    "serverless-http": "^2.0.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/register": "^7.5.5",
+    "ava": "^2.2.0",
+    "babel-plugin-istanbul": "^5.2.0",
+    "nyc": "^14.1.1",
+    "rimraf": "^2.6.3",
+    "sequelize-cli": "^5.5.0",
+    "sqlite3": "^4.0.9",
+    "supertest": "^4.0.2"
+  },
+  "ava": {
+    "concurrency": 1
+  },
+  "nyc": {
+    "require": [
+      "@babel/register"
+    ],
+    "sourceMap": false,
+    "instrument": false
+  }
+}

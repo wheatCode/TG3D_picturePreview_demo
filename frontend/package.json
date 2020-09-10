@@ -1,0 +1,110 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "deploy": "vue-cli-service s3-deploy",
+    "test": "vue-cli-service test:unit",
+    "test-watch": "npm test -- --watch"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.15",
+    "@fortawesome/free-solid-svg-icons": "^5.7.2",
+    "@fortawesome/vue-fontawesome": "^0.1.5",
+    "axios": "^0.19.0",
+    "core-js": "^2.6.5",
+    "expect-puppeteer": "^4.3.0",
+    "fontawesome": "^5.6.3",
+    "node-sass": "^4.12.0",
+    "sass-loader": "^7.1.0",
+    "spark-md5": "^3.0.0",
+    "vue": "^2.6.10",
+    "vue-axios": "^2.1.4",
+    "vue-cropper": "^0.4.9",
+    "vue-headroom": "^0.10.1",
+    "vue-i18n": "^8.14.0",
+    "vue-loading-overlay": "^3.2.0",
+    "vue-router": "^3.1.2",
+    "vue-simple-uploader": "^0.7.1",
+    "vuetify": "^1.5.5"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.9.0",
+    "@vue/cli-plugin-eslint": "^3.9.0",
+    "@vue/cli-plugin-unit-jest": "^3.9.0",
+    "@vue/cli-service": "^3.9.0",
+    "@vue/eslint-config-prettier": "^4.0.1",
+    "@vue/test-utils": "1.0.0-beta.29",
+    "babel-core": "7.0.0-bridge.0",
+    "babel-eslint": "^10.0.1",
+    "babel-jest": "^23.6.0",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^13.2.0",
+    "eslint-plugin-import": "^2.18.1",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "jest": "^24.9.0",
+    "jest-puppeteer": "^4.3.0",
+    "nyc": "^14.1.1",
+    "prettier": "^1.18.2",
+    "puppeteer": "^1.20.0",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.1",
+    "vue-cli-plugin-fontawesome": "^0.2.0",
+    "vue-cli-plugin-s3-deploy": "^3.0.0",
+    "vue-cli-plugin-vuetify": "^0.5.0",
+    "vue-template-compiler": "^2.6.10",
+    "vuetify-loader": "^1.0.5"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "airbnb-base",
+      "plugin:vue/essential",
+      "@vue/prettier"
+    ],
+    "rules": {
+      "import/no-unresolved": "off",
+      "prettier/prettier": [
+        "warn",
+        {
+          "singleQuote": true,
+          "trailingComma": "es5",
+          "printWidth": 100
+        }
+      ]
+    },
+    "parserOptions": {
+      "parser": "babel-eslint"
+    }
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ],
+  "jest": {
+    "preset": "jest-puppeteer",
+    "testMatch": [
+      "**/__tests__/*.js?(x)"
+    ],
+    "setupFilesAfterEnv": [
+      "expect-puppeteer"
+    ]
+  },
+  "nyc": {
+    "include": [
+      "src/**/*.*"
+    ]
+  }
+}

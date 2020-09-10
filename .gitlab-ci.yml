@@ -1,0 +1,110 @@
+stages:
+  - test
+  - deploy
+
+.only_master: &only_master
+  only:
+    refs:
+      - master
+
+.yarn_image: &yarn_image
+  image: registry.tg3ds.com:5001/internal/labeling-tool/yarn:latest
+
+test_backend:
+  <<: *yarn_image
+  stage: test
+  coverage: '/Statements   : \d+\.\d+%/'
+  retry: 2
+  before_script:
+    - cd backend
+    - yarn install
+  script:
+    - yarn run test:summary
+
+#test_e2e:
+#  image: registry.tg3ds.com:5001/internal/labeling-tool/e2e:latest
+#  stage: test
+#  retry: 2
+#  before_script:
+#    - cd backend
+#    - yarn install
+#    - yarn run db:init
+#    - node index.js &
+#    - cd ../frontend
+#    - yarn install
+#    - yarn serve &
+#    - sleep 40
+#  script:
+#    - yarn test
+
+.backend: &deploy_backend
+  <<: *yarn_image
+  stage: deploy
+  when: manual
+  script:
+    - echo ==== NODE_ENV ===
+    - echo $NODE_ENV
+    - echo ==== DB_HOST ===
+    - echo $DB_HOST
+    - echo ==== AWS_S3_BUCKET_NAME ===
+    - echo $AWS_S3_BUCKET_NAME
+    - cd backend
+    - echo "====== Install packages ======"
+    - yarn install --production=false
+    - echo "====== Run db migrations ======"
+    - yarn run db:migrate
+    - echo "====== Deploy with serverless ======"
+    - sls deploy --stage ${DEPLOY_TARGET} --region ${AWS_LAMBDA_REGION}
+
+.front_deploy: &frontend_deploy
+  image: registry.tg3ds.com:5001/internal/labeling-tool/yarn:latest
+  stage: deploy
+  when: manual
+  variables:
+    NODE_ENV: production
+  script:
+    - echo ==== NODE_ENV ===
+    - echo $NODE_ENV
+    - echo ==== VUE_APP_S3D_BUCKET ===
+    - echo $VUE_APP_S3D_BUCKET
+    - cd frontend
+    - echo "====== Install packages ======"
+    - yarn install --production=false
+    - echo "====== Build Vue App ======"
+    - yarn run build
+    - echo "====== Sync build ======"
+    - yarn deploy
+
+deploy_backend_dev:
+  <<: *deploy_backend
+  variables:
+    DEPLOY_TARGET: dev
+    NODE_ENV: production
+
+deploy_backend_prod:
+  <<: *deploy_backend
+  <<: *only_master
+  variables:
+    DEPLOY_TARGET: prod
+    NODE_ENV: production
+
+  before_script:
+    - export DB_USERNAME=$PROD_DB_USERNAME
+      DB_PASSWORD=$PROD_DB_PASSWORD
+      DB_NAME=$PROD_DB_NAME
+      DB_HOST=$PROD_DB_HOST
+      DB_PORT=$PROD_DB_PORT
+      AWS_LAMBDA_REGION=$PROD_AWS_LAMBDA_REGION
+      AWS_S3_BUCKET_NAME=$PROD_AWS_S3_BUCKET_NAME
+
+deploy_frontend_dev:
+  <<: *frontend_deploy
+
+deploy_frontend_prod:
+  <<: *frontend_deploy
+  <<: *only_master
+  before_script:
+    - export VUE_APP_S3D_REGION=$PROD_VUE_APP_S3D_REGION
+      VUE_APP_S3D_BUCKET=$PROD_VUE_APP_S3D_BUCKET
+      VUE_APP_S3D_CLOUDFRONT_ID=$PROD_VUE_APP_S3D_CLOUDFRONT_ID
+      VUE_APP_API_ENDPOINT=$PROD_VUE_APP_API_ENDPOINT
